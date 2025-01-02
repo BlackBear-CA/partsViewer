@@ -1,4 +1,6 @@
 import wixData from 'wix-data';
+import { saveAs } from 'file-saver';
+import { utils, writeFile } from 'xlsx';
 
 $w.onReady(function () {
     // Function to perform the search
@@ -60,5 +62,50 @@ $w.onReady(function () {
         if (event.key === "Enter") {
             performSearch();
         }
+    });
+
+    // Function to export dataset data to Excel
+    async function exportToExcel() {
+        const data = await $w("#dataset2").getItems(); // Get items from the dataset
+
+        if (data.items.length === 0) {
+            console.log("No data available to export.");
+            return;
+        }
+
+        // Prepare the data for Excel
+        const rows = data.items.map((item) => ({
+            SKU: item.skUs,
+            MaterialDescription: item.materialDescription,
+            ItemDetailedDescription: item.itemDetailedDescription,
+            Manufacturer: item.manufacturer,
+            BOMQty: item.bomQty,
+            BOMStructure: item.bomStructure,
+            Reference: item.reference,
+        }));
+
+        // Generate Excel workbook and sheet
+        const workbook = utils.book_new();
+        const worksheet = utils.json_to_sheet(rows);
+        utils.book_append_sheet(workbook, worksheet, "PartsViewerData");
+
+        // Generate Excel file
+        const excelBuffer = writeFile(workbook, "PartsViewerData.xlsx", {
+            bookType: "xlsx",
+            type: "buffer",
+        });
+
+        // Use FileSaver.js to trigger download
+        saveAs(
+            new Blob([excelBuffer], { type: "application/octet-stream" }),
+            "PartsViewerData.xlsx"
+        );
+
+        console.log("Excel file generated successfully.");
+    }
+
+    // Set up the click event for the download button
+    $w("#button6").onClick(() => {
+        exportToExcel();
     });
 });
