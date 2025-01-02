@@ -1,6 +1,4 @@
 import wixData from 'wix-data';
-import { saveAs } from 'file-saver';
-import * as XLSX from 'xlsx';
 
 $w.onReady(function () {
     // Function to perform the search
@@ -63,32 +61,4 @@ $w.onReady(function () {
             performSearch();
         }
     });
-
-    // Function to export dataset data to Excel
-    async function exportToExcel() {
-        try {
-            const data = await $w("#dataset2").getItems(); // Get items from the dataset
-
-            if (data.items.length === 0) {
-                console.log("No data available to export.");
-                return;
-            }
-
-            // Prepare the data for Excel
-            const rows = data.items.map((item) => ({
-                SKU: item.skUs || "",
-                MaterialDescription: item.materialDescription || "",
-                ItemDetailedDescription: item.itemDetailedDescription || "",
-                Manufacturer: item.manufacturer || "",
-                BOMQty: item.bomQty || "",
-                BOMStructure: item.bomStructure || "",
-                Reference: item.reference || "",
-            }));
-
-            // Generate Excel workbook and sheet
-            const worksheet = XLSX.utils.json_to_sheet(rows);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "PartsViewerData");
-
-            // Create and trigger file download
-            const excelBuffe
+});
